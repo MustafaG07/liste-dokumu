@@ -106,12 +106,23 @@ export function App() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ url }),
       })
-      const body = await response.json()
-      if (!response.ok) {
-        setError(body.error || "Liste okunamadı. Yeniden dene.")
+      const text = await response.text()
+      let body: { error?: unknown }
+      try {
+        body = JSON.parse(text)
+      } catch {
+        setError("Liste okunamadı. Sunucu parça listesi yerine bir sayfa gönderdi.")
         return
       }
-      setPlaylist(body)
+      if (!response.ok) {
+        setError(
+          typeof body.error === "string"
+            ? body.error
+            : "Liste okunamadı. Yeniden dene.",
+        )
+        return
+      }
+      setPlaylist(body as Playlist)
     } catch {
       setError("Liste okunamadı. Yeniden dene.")
     } finally {
