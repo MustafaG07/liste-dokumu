@@ -1,21 +1,17 @@
-# React + TypeScript + Vite + shadcn/ui
+# Parçaları CSV yap
 
-This is a template for a new Vite project with React, TypeScript, and shadcn/ui.
-
-## Adding components
-
-To add components to your app, run the following command:
+Herkese açık bir Spotify, Apple Music veya YouTube Music listesinin bağlantısını yapıştırır, parçaları okur, CSV indirir. Hesap bağlanmaz.
 
 ```bash
-npx shadcn@latest add button
+npm install
+npm run dev
 ```
 
-This will place the ui components in the `src/components` directory.
+Geliştirme adresi `http://127.0.0.1:5173`. Yayında önce sayfa derlenir, sonra Node sunucusu `dist` klasörünü ve `/api/playlist` yolunu açar.
 
-## Using components
-
-To use the components in your app, import them as follows:
-
-```tsx
-import { Button } from "@/components/ui/button"
+```bash
+npm run build
+npm start
 ```
+
+Sunucu `PORT` değerini ortamdan okur. Varsayılan kapı `4317`.
