@@ -30,6 +30,11 @@ type Track = {
   artist: string
   album: string
   duration: string
+  durationMs?: number
+  uri?: string
+  isrc?: string
+  releaseDate?: string
+  explicit?: boolean
   url: string
 }
 
@@ -49,25 +54,87 @@ function fileName(title: string) {
   return `${cleaned || "liste"}.csv`
 }
 
-function cell(value: string) {
-  const text = value ?? ""
-  return /[;"\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text
+const CSV_HEADER = [
+  "Track URI",
+  "ISRC",
+  "Track Name",
+  "Album Name",
+  "Artist Name(s)",
+  "Release Date",
+  "Duration (ms)",
+  "Popularity",
+  "Explicit",
+  "Added By",
+  "Added At",
+  "Genres",
+  "Record Label",
+  "Danceability",
+  "Energy",
+  "Key",
+  "Loudness",
+  "Mode",
+  "Speechiness",
+  "Acousticness",
+  "Instrumentalness",
+  "Liveness",
+  "Valence",
+  "Tempo",
+  "Time Signature",
+]
+
+function quoted(value: string) {
+  return `"${value.replaceAll('"', '""')}"`
+}
+
+function plain(value: string) {
+  if (!value) return ""
+  return /[,"\n]/.test(value) ? quoted(value) : value
+}
+
+function artistNames(value: string) {
+  return value
+    .replace(/\u00a0/g, " ")
+    .split(/\s*,\s*/)
+    .map((name) => name.trim())
+    .filter(Boolean)
+    .join(";")
 }
 
 function csv(playlist: Playlist) {
-  const rows = [
-    ["sıra", "parça", "sanatçı", "albüm", "süre", "kaynak", "parça bağlantısı"],
-    ...playlist.tracks.map((track) => [
-      String(track.position),
-      track.title,
-      track.artist,
-      track.album,
-      track.duration,
-      playlist.source,
-      track.url,
-    ]),
-  ]
-  return `\uFEFF${rows.map((row) => row.map(cell).join(";")).join("\r\n")}`
+  const rows = playlist.tracks.map((track) => {
+    const durationMs =
+      track.durationMs && track.durationMs > 0
+        ? String(Math.round(track.durationMs))
+        : ""
+    return [
+      plain(track.uri || ""),
+      plain(track.isrc || ""),
+      quoted(track.title),
+      quoted(track.album),
+      quoted(artistNames(track.artist)),
+      plain(track.releaseDate || ""),
+      durationMs,
+      "",
+      typeof track.explicit === "boolean" ? String(track.explicit) : "",
+      "",
+      "",
+      quoted(""),
+      quoted(""),
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+    ].join(",")
+  })
+  return `\uFEFF${[CSV_HEADER.join(","), ...rows].join("\n")}`
 }
 
 function download(playlist: Playlist) {
@@ -290,8 +357,8 @@ export function App() {
 
       <Separator />
       <p className="text-sm text-muted-foreground">
-        Albüm sayfada yoksa o sütun boş kalır. CSV noktalı virgül kullanır ve
-        UTF-8 kaydeder.
+        CSV, örnek dosyadaki sütunlarla iner: Track URI, ISRC, parça adı, albüm,
+        sanatçı ve süre milisaniye. Sayfanın vermediği ölçüler boş kalır.
       </p>
     </main>
   )
