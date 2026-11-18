@@ -50,6 +50,7 @@ function playlistApi(): Plugin {
 }
 
 export default defineConfig({
+  base: process.env.BASE_PATH || "/",
   plugins: [react(), tailwindcss(), playlistApi()],
   resolve: {
     alias: {
